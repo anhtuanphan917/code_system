@@ -1,0 +1,74 @@
+#include <SPI.h>
+#include <MFRC522.h>
+#include <ESP32Servo.h>
+
+
+#define servo 16
+
+Servo myServo;
+
+#define LED_PIN1 00
+#define LED_PIN2 02
+#define BUTTON_PIN 04
+
+int input_state = HIGH;
+bool ledState;
+
+int Rheostat1 = 0;
+int Rheostat2 = 0;
+
+void Setup_Servo() {
+  myServo.attach(servo);
+}
+
+void Setup_LED() {
+pinMode(LED_PIN1, OUTPUT);
+pinMode(LED_PIN2, OUTPUT);
+pinMode(BUTTON_PIN, INPUT_PULLUP);
+}
+
+void Setup_DC() {
+  pinMode(12, OUTPUT);
+  pinMode(14, OUTPUT);
+}
+
+void Loop_Servo() {
+  myServo.write(90);
+}
+
+void Loop_LED() {
+  input_state = digitalRead(BUTTON_PIN);
+    if (input_state==0) {
+    ledState = !ledState;
+    digitalWrite(LED_PIN1, ledState);
+    digitalWrite(LED_PIN2, ledState);
+}
+}
+
+void Loop_DC() {
+  Rheostat1 = analogRead(26);
+  if (Rheostat1 > 250) Rheostat1 = 250;
+  Serial.println(Rheostat1);
+analogWrite (12, Rheostat1);
+
+Rheostat2 = analogRead(27);
+  if (Rheostat2 > 250) Rheostat2 = 250;
+  Serial.println(Rheostat2);
+analogWrite (14, Rheostat2);
+}
+
+void setup() {
+Serial.begin(9600);
+
+SPI.begin();
+  Setup_LED();
+  Setup_DC();
+  Setup_Servo();
+}
+void loop() {
+
+    Loop_LED();
+    Loop_DC();
+    Loop_Servo();
+  
+} 
